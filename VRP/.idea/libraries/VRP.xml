@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="VRP">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jgoodies-common-1.8.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jgoodies-forms-1.8.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/RserveEngine.jar!/" />
+      <root url="jar://$PROJECT_DIR$/REngine.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jgoodies-common-1.8.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/jgoodies-forms-1.8.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
