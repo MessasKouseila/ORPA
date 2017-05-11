@@ -5,10 +5,11 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -16,28 +17,33 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import Statistics.Statistique;
-import solver.*;
+import gurobi.GRBException;
+import instance.Instance;
+import solver.Vrp_solver;
 
 public class MainWindow {
 	
-	private Solver instanceOfSolver;
+	private Vrp_solver instanceOfSolver;
 	private Statistique instanceOfStat;
 	private GraphPrinter instanceOfPrint;
-	private GenerateInstance instanceOfGenerator;
+	private Instance tmpInst;
+	
 	
 	private JFrame frame;
 	private JDesktopPane container;
 	private JInternalFrame instance;
 	private JInternalFrame stat;
 	private JInternalFrame solution;
+	
+	JCheckBoxMenuItem checkBoxMenuItem;
+	JCheckBoxMenuItem checkBoxMenuItem_1;
+	JCheckBoxMenuItem checkBoxMenuItem_2;
 	int width = 768;
 	int height = 1024; 
-	private final ButtonGroup buttonGroup = new ButtonGroup();
-	
-
 	/**
 	 * Launch the application.
 	 */
@@ -64,8 +70,8 @@ public class MainWindow {
 	 * Create the application.
 	 */
 	public MainWindow() {
-		instanceOfGenerator = new GenerateInstance();
 		initialize();
+		instance.revalidate();
 	}
 
 	/**
@@ -104,7 +110,6 @@ public class MainWindow {
 		instance = new JInternalFrame("INSTANCE", true, true, true);
 		instance.setBounds(0, 0, (int)(frame.getWidth()*0.60), (int)(frame.getHeight() - 50));
 		instance.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		instance.getContentPane().setLayout(null);
 		instance.getContentPane().setBackground(Color.LIGHT_GRAY);
 		container.add(instance);
 		instance.addComponentListener(new ComponentAdapter() {
@@ -161,10 +166,18 @@ public class MainWindow {
 		menuBar.add(menu_Problem);
 		JMenuItem Problem_new = new JMenuItem("New");
 		Problem_new.addMouseListener(new MouseAdapter() {
+			private JOptionPane jop;
 			@Override
 			public void mousePressed(MouseEvent e) {
-				instanceOfGenerator.setVisible(true);
-				System.out.println("Generation en cours ...");
+				jop = new JOptionPane();
+			    int nbr = Integer.parseInt(JOptionPane.showInputDialog(null, "Saisir le nombre de Station", "Generateur d'instance", JOptionPane.QUESTION_MESSAGE));		
+				System.out.println("Generation en cours avec "+nbr+" stations");
+				tmpInst = new Instance(nbr);
+				instanceOfPrint = new GraphPrinter(instance, tmpInst);
+				instance.getContentPane().removeAll();
+				instance.getContentPane().add(instanceOfPrint.graphIt());
+				instance.repaint();
+				instance.revalidate();
 			}
 		});
 		menu_Problem.add(Problem_new);
@@ -181,25 +194,86 @@ public class MainWindow {
 			}
 		});
 		menu_Problem.add(Problem_Close);
-
-		
 		
 		// menu METHODS
 		JMenu menu_Methods = new JMenu("Methods");
 		menuBar.add(menu_Methods);
-		JCheckBoxMenuItem methode_1 = new JCheckBoxMenuItem("Methode 1");
-		buttonGroup.add(methode_1);
-		menu_Methods.add(methode_1);
-		JCheckBoxMenuItem methode_2 = new JCheckBoxMenuItem("Methode 2");
-		buttonGroup.add(methode_2);
-		menu_Methods.add(methode_2);
-		JCheckBoxMenuItem methode_3 = new JCheckBoxMenuItem("Methode 3");
-		buttonGroup.add(methode_3);
-		menu_Methods.add(methode_3);
+		//menu_Methods.add(group);
+		
+		checkBoxMenuItem = new JCheckBoxMenuItem("Modèle", true);
+		checkBoxMenuItem.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (checkBoxMenuItem.getState()) {
+					checkBoxMenuItem_1.setSelected(false);
+					checkBoxMenuItem_2.setSelected(false);
+				}					
+			}
+		});
+		menu_Methods.add(checkBoxMenuItem);
+		
+		checkBoxMenuItem_1 = new JCheckBoxMenuItem("Heuristique 2", false);
+		checkBoxMenuItem_1.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (checkBoxMenuItem_1.getState()) {
+					checkBoxMenuItem.setSelected(false);
+					checkBoxMenuItem_2.setSelected(false);
+				}
+					
+			}
+		});
+		menu_Methods.add(checkBoxMenuItem_1);
+		
+		checkBoxMenuItem_2 = new JCheckBoxMenuItem("Heuristique 3", false);
+		checkBoxMenuItem_2.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (checkBoxMenuItem_2.getState()) {
+					checkBoxMenuItem_1.setSelected(false);
+					checkBoxMenuItem.setSelected(false);
+				}
+			}
+		});
+		menu_Methods.add(checkBoxMenuItem_2);
 		
 		// menu solution et aide
 		JMenu menu_Solution = new JMenu("Solution");
 		menuBar.add(menu_Solution);
+		
+		JMenuItem LaunchSol = new JMenuItem("Launch resolution");
+		menu_Solution.add(LaunchSol);
+		LaunchSol.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (checkBoxMenuItem.isSelected()) {
+					try {
+						instanceOfSolver = new Vrp_solver(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
+						instanceOfSolver.resolve();
+						instanceOfSolver.prindTrajet();
+						instanceOfSolver.printInformation();
+					} catch (GRBException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				if (checkBoxMenuItem_1.isSelected()) {
+					try {
+						System.out.println("methode heuristique 1");
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				if (checkBoxMenuItem_2.isSelected()) {
+					try {
+						System.out.println("methode heuristique 2");
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		
+		// Help menu
 		JMenu menu_Help = new JMenu("Help");
 		menuBar.add(menu_Help);
 		

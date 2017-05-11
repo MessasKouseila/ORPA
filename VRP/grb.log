@@ -1,0 +1,286 @@
+
+Gurobi 7.0.2 (linux64, Java) logging started jeu. 23 mars 2017 09:10:11 CET
+
+Optimize a model with 2040 rows, 1560 columns and 6508 nonzeros
+Variable types: 546 continuous, 1014 integer (1014 binary)
+Coefficient statistics:
+  Matrix range     [1e-06, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e-01, 3e+01]
+Found heuristic solution: objective 31.2
+Presolve removed 1949 rows and 1474 columns
+Presolve time: 0.06s
+Presolved: 91 rows, 86 columns, 286 nonzeros
+Variable types: 34 continuous, 52 integer (52 binary)
+
+Root relaxation: objective 2.999997e+01, 44 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+*    0     0               0      29.9999656   29.99997  0.00%     -    0s
+
+Explored 0 nodes (44 simplex iterations) in 0.10 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 2: 30 31.2 
+Pool objective bound 30
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.999996562803e+01, best bound 2.999996562803e+01, gap 0.0000%
+
+Gurobi 7.0.2 (linux64, Java) logging started jeu. 23 mars 2017 22:10:35 CET
+
+
+Gurobi 7.0.2 (linux64, Java) logging started jeu. 23 mars 2017 22:12:14 CET
+
+Optimize a model with 2040 rows, 1560 columns and 6508 nonzeros
+Variable types: 546 continuous, 1014 integer (1014 binary)
+Coefficient statistics:
+  Matrix range     [2e-06, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [4e-01, 3e+01]
+Found heuristic solution: objective 61.8049
+Presolve removed 1949 rows and 1474 columns
+Presolve time: 0.07s
+Presolved: 91 rows, 86 columns, 278 nonzeros
+Variable types: 34 continuous, 52 integer (52 binary)
+
+Root relaxation: objective 5.994332e+01, 57 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+*    0     0               0      59.9433206   59.94332  0.00%     -    0s
+
+Explored 0 nodes (57 simplex iterations) in 0.11 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 2: 59.9433 61.8049 
+Pool objective bound 59.9433
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 5.994332057364e+01, best bound 5.994332057364e+01, gap 0.0000%
+
+Gurobi 7.0.2 (linux64, Java) logging started ven. 24 mars 2017 09:15:06 CET
+
+Optimize a model with 2040 rows, 1560 columns and 6508 nonzeros
+Variable types: 546 continuous, 1014 integer (1014 binary)
+Coefficient statistics:
+  Matrix range     [7e-07, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e-01, 3e+01]
+Found heuristic solution: objective 22.1209
+Presolve removed 1955 rows and 1478 columns
+Presolve time: 0.04s
+Presolved: 85 rows, 82 columns, 271 nonzeros
+Found heuristic solution: objective 22.1207940
+Variable types: 34 continuous, 48 integer (48 binary)
+
+Root relaxation: objective 2.144937e+01, 58 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+*    0     0               0      21.4493707   21.44937  0.00%     -    0s
+
+Explored 0 nodes (58 simplex iterations) in 0.08 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 3: 21.4494 22.1208 22.1209 
+Pool objective bound 21.4494
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.144937065863e+01, best bound 2.144937065863e+01, gap 0.0000%
+
+Gurobi 7.0.2 (linux64, Java) logging started ven. 24 mars 2017 13:08:59 CET
+
+
+Gurobi 7.0.2 (linux64, Java) logging started jeu. 11 mai 2017 10:13:37 CEST
+
+Optimize a model with 1529 rows, 1105 columns and 4140 nonzeros
+Variable types: 390 continuous, 715 integer (715 binary)
+Coefficient statistics:
+  Matrix range     [9e-07, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e-01, 3e+01]
+Found heuristic solution: objective 35.4918
+Presolve removed 1528 rows and 1101 columns
+Presolve time: 0.01s
+Presolved: 1 rows, 4 columns, 4 nonzeros
+Variable types: 0 continuous, 4 integer (4 binary)
+
+Explored 0 nodes (0 simplex iterations) in 0.08 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 1: 35.4918 
+Pool objective bound 35.4917
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.549183356842e+01, best bound 3.549174803305e+01, gap 0.0002%
+
+Gurobi 7.0.2 (linux64, Java) logging started jeu. 11 mai 2017 14:01:02 CEST
+
+Optimize a model with 1529 rows, 1105 columns and 4140 nonzeros
+Variable types: 390 continuous, 715 integer (715 binary)
+Coefficient statistics:
+  Matrix range     [1e-06, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e-01, 3e+01]
+Found heuristic solution: objective 33.6173
+Presolve removed 1528 rows and 1101 columns
+Presolve time: 0.01s
+Presolved: 1 rows, 4 columns, 4 nonzeros
+Variable types: 0 continuous, 4 integer (4 binary)
+
+Explored 0 nodes (0 simplex iterations) in 0.05 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 1: 33.6173 
+Pool objective bound 33.6172
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.361729011563e+01, best bound 3.361722999322e+01, gap 0.0002%
+
+Gurobi 7.0.2 (linux64, Java) logging started jeu. 11 mai 2017 14:01:21 CEST
+
+Optimize a model with 2040 rows, 1560 columns and 6508 nonzeros
+Variable types: 546 continuous, 1014 integer (1014 binary)
+Coefficient statistics:
+  Matrix range     [6e-07, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [9e-02, 3e+01]
+Found heuristic solution: objective 40.9383
+Presolve removed 1950 rows and 1477 columns
+Presolve time: 0.05s
+Presolved: 90 rows, 83 columns, 279 nonzeros
+Found heuristic solution: objective 40.9382222
+Variable types: 35 continuous, 48 integer (48 binary)
+
+Root relaxation: objective 3.914682e+01, 44 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+*    0     0               0      39.1468229   39.14682  0.00%     -    0s
+
+Explored 0 nodes (44 simplex iterations) in 0.06 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 2: 39.1468 40.9382 
+Pool objective bound 39.1468
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.914682286601e+01, best bound 3.914682286601e+01, gap 0.0000%
+
+Gurobi 7.0.2 (linux64, Java) logging started jeu. 11 mai 2017 14:32:28 CEST
+
+Optimize a model with 1529 rows, 1105 columns and 4140 nonzeros
+Variable types: 390 continuous, 715 integer (715 binary)
+Coefficient statistics:
+  Matrix range     [3e-06, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [4e-01, 3e+01]
+Found heuristic solution: objective 43.0344
+Presolve removed 1528 rows and 1101 columns
+Presolve time: 0.00s
+Presolved: 1 rows, 4 columns, 4 nonzeros
+Variable types: 0 continuous, 4 integer (4 binary)
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 1: 43.0344 
+Pool objective bound 43.0343
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 4.303441572582e+01, best bound 4.303430528939e+01, gap 0.0003%
+
+Gurobi 7.0.2 (linux64, Java) logging started Thu May 11 14:32:44 2017
+
+
+Gurobi 7.0.2 (linux64, Java) logging started Thu May 11 14:32:57 2017
+
+Optimize a model with 2040 rows, 1560 columns and 6508 nonzeros
+Variable types: 546 continuous, 1014 integer (1014 binary)
+Coefficient statistics:
+  Matrix range     [1e-07, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e-02, 3e+01]
+Found heuristic solution: objective 35.6158
+Presolve removed 1960 rows and 1480 columns
+Presolve time: 0.04s
+Presolved: 80 rows, 80 columns, 257 nonzeros
+Found heuristic solution: objective 35.6157868
+Variable types: 35 continuous, 45 integer (45 binary)
+
+Root relaxation: objective 3.378697e+01, 42 iterations, 0.00 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+*    0     0               0      33.7869721   33.78697  0.00%     -    0s
+
+Explored 0 nodes (42 simplex iterations) in 0.04 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 3: 33.787 35.6158 35.6158 
+Pool objective bound 33.787
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.378697212238e+01, best bound 3.378697212238e+01, gap 0.0000%
+
+Gurobi 7.0.2 (linux64, Java) logging started Thu May 11 14:33:07 2017
+
+Optimize a model with 1030 rows, 728 columns and 2672 nonzeros
+Variable types: 260 continuous, 468 integer (468 binary)
+Coefficient statistics:
+  Matrix range     [3e-06, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [3e-01, 3e+01]
+Found heuristic solution: objective 27.3305
+Presolve removed 1030 rows and 728 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 27.3305 
+Pool objective bound 27.3305
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.733051003343e+01, best bound 2.733051003343e+01, gap 0.0000%
+
+Gurobi 7.0.2 (linux64, Java) logging started Thu May 11 14:33:18 2017
+
+Optimize a model with 1529 rows, 1105 columns and 4140 nonzeros
+Variable types: 390 continuous, 715 integer (715 binary)
+Coefficient statistics:
+  Matrix range     [4e-06, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [2e-01, 3e+01]
+Found heuristic solution: objective 37.4261
+Presolve removed 1528 rows and 1101 columns
+Presolve time: 0.00s
+Presolved: 1 rows, 4 columns, 4 nonzeros
+Variable types: 0 continuous, 4 integer (4 binary)
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 1: 37.4261 
+Pool objective bound 37.4261
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 3.742612356203e+01, best bound 3.742609021881e+01, gap 0.0001%

@@ -1,13 +1,18 @@
 package solver;
 
-import gurobi.*;
+import gurobi.GRB;
+import gurobi.GRBEnv;
+import gurobi.GRBException;
+import gurobi.GRBLinExpr;
+import gurobi.GRBModel;
+import gurobi.GRBVar;
 
 public class Vrp_solver {
 	
 	
 	/////// Environnement GUROBI //////////////////////////
-	private GRBEnv    env   ;
-	private GRBModel  model ;
+	private GRBEnv env;
+	private GRBModel model;
 	////////////////////////////////////////////
 	
 	//// Variable///////////////////////////////////////////////
@@ -41,6 +46,12 @@ public class Vrp_solver {
 	private double objectif;
 	//////////////////////////
 	
+	/** config env
+	 * GUROBI_HOME		/opt/gurobi702/linux64
+	 * PATH				/opt/gurobi702/linux64/bin"
+	 * LD_LIBRARY_PATH	/opt/gurobi702/linux64/lib"
+	 */
+	
 	
 	/**
 	 * 
@@ -49,9 +60,9 @@ public class Vrp_solver {
 	 * @param tempsfin La dur�e de la simulation
 	 * @param M
 	 * @param R La capacite maximale  d'information que peut recueillir le vehicule
-	 * @param r Le flux d'iinformation entrant pour une station donn�
-	 * @param d La distante entre deux noeuds
-	 * @param alpha Les contraites de relantissement desde  transfert d'information pour une station
+	 * @param r Le flux d'information entrant pour une station donn�
+	 * @param d La distance entre deux noeuds
+	 * @param alpha Les contraintes de ralentissement de transfert d'information pour une station
 	 * @throws GRBException
 	 */
 	public Vrp_solver( int nombreStation, int temps[][] , int tempsfin,int M,int R ,double r[],int d[][],double alpha[][]) throws GRBException
