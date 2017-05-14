@@ -3,7 +3,7 @@ package instance;
 import java.util.Random;
 
 public class Instance {
-	
+	private static Instance inst = null;
 	public static Random rand = new Random();
 	
 	// nombre de station dans le graphe
@@ -13,34 +13,64 @@ public class Instance {
 	public double r[];// = {0.4,0.3,0.2,0.7,0.5,0.3};
 
 	// Les temps pour aller d'un sommet à un autre
-	public int t[][] ={{0,3,0,0,0,3},
+	public int t[][]; /*= {{0,3,0,0,0,3},
 			{3,0,3,0,0,2},
 			{0,3,0,2,0,3},
 			{0,0,2,0,2,3},
 			{0,0,0,2,0,3},
 			{3,2,3,3,3,0}
 
-	};
+	};*/
+	private void initTime() {
+		this.t = new int[this.numberOfNode][this.numberOfNode];
+		for (int i = 0; i < this.numberOfNode; ++i) {
+			for (int j = 0; j < this.numberOfNode; ++j) {
+				if (this.lien[i][j]) {
+					this.t[i][j] = (int)this.d[i][j] / 100;	
+				} else {
+					this.t[i][j] = 0;
+				}
+			}
+		}
+	}
 
 	// La distance entre les stations
-	public int d[][] = {{440,1,200,400,400,400},
-			{100,0,100,100,100,100},
-			{300,1,0,200,300,399},
-			{400,1,200,0,200,300},
-			{400,1,300,200,0,300},
-			{400,1,300,300,300,0}
-
-	};
-
+	public int d[][];
+	private void initDistance() {
+		
+		this.d = new int[this.numberOfNode][this.numberOfNode];
+		for (int i = 0; i < this.numberOfNode; ++i) {
+			for (int j = 0; j < this.numberOfNode; ++j) {
+				this.d[i][j] = 0;
+			}
+		}
+		
+		for (int i = 0; i < this.numberOfNode; ++i) {
+			for (int j = 0; j < this.numberOfNode; ++j) {
+				if (this.lien[i][j]) {
+					this.d[i][j] = (int)Rand(101, 505);
+					this.d[j][i] = (int)Rand(101, 505);	
+				} else {
+					this.d[i][j] = 0;
+					this.d[j][i] = 0;
+				}
+			}
+		}
+	}
 	// Les contraintes de ralentissement de transfert d'information pour une station
-	public double alpha[][] = {{0,1,1,1,1,1},
-			{1,0,1,1,1,1},
-			{1,1,0,1,1,1},
-			{1 ,1,1,0,1,1},
-			{1,1,1,1,0,1},
-			{1,1,1,1,1,0}
-
-	};
+	public double alpha[][];
+	private void initAlpha() {
+		this.alpha = new double[this.numberOfNode][this.numberOfNode];
+		for (int i = 0; i < this.numberOfNode; ++i) {
+			for (int j = 0; j < this.numberOfNode; ++j) {
+				if (i == j) {
+					this.alpha[i][j] = 1;
+				} else {
+					this.alpha[i][j] = 0;
+				}
+			}
+		}
+	}
 	// Le nombre maximal de stations que peut 
 	public int M = 2;
 	// Capacité maximale de transport d'informations pour un véhicule
@@ -52,39 +82,70 @@ public class Instance {
 	 *  genere le Flux d'informations rentrant dans chaque station
 	 * @return
 	 */
-	public void initFlux() {
+	private void initFlux() {
 		this.r = new double[this.numberOfNode];
 		for (int i = 0; i < this.numberOfNode; ++i) {
 			this.r[i] = rand.nextDouble();
 		}
 	}
-	public void initLien() {
+	private void initLien() {
 		this.lien = new boolean[this.numberOfNode][this.numberOfNode];
 		for (int i = 0; i < this.numberOfNode; ++i) {
 			for (int j = 0; j < this.numberOfNode; ++j) {
-
 				// une station ne peut pas avoir de chemin vers elle même
 				if (i == j) {
 					this.lien[i][j] = false;
-				} else 
-					// on initialise aleatoirement l'existance de liens de la station base 
-					if (i == 0) {
-						this.lien[i][j] = rand.nextBoolean();					
+				// on initialise aleatoirement l'existance de liens de la station base 
+				} else if (i == 0) {
+					if (nbLien(this.lien[i]) < 2) {
+						this.lien[i][j] = rand.nextInt() > 0.5;
+					}			
+				} else {
+					// si une station i à un chemin vers une station j
+					// alors la station j doit avoir un lien avec la station i
+					if (j <= i) {
+						this.lien[i][j] = this.lien[j][i];
 					} else {
-						// si une station i à un chemin vers une station j
-						// alors la station j doit avoir un lien avec la station i
-						if (j <= i) {
-							this.lien[i][j] = this.lien[j][i];
-						} else {
-							// on initialise aleatoirement l'existance de liens
-							this.lien[i][j] = rand.nextBoolean();
+						// on initialise aleatoirement l'existance de liens
+						if (nbLien(this.lien[i]) < 2) {
+							this.lien[i][j] = rand.nextInt() > 0.5;
 						}
 					}
+				}
 			}
-			// test chemin, il faut au moins 2 chemins de chaque station
 			if (!this.valide(lien[i])) i--;
-
 		}
+		this.clean();
+		this.path();
+	}
+	
+	private void clean() {
+		
+		for (int i = 0; i < this.numberOfNode; ++i) {
+			if (nbLien(this.lien[i]) > 2) {
+				for (int j = 0; j < this.numberOfNode; ++j) {
+					if (this.lien[i][j] == true && nbLien(this.lien[j]) > 1) {
+						this.lien[i][j] = false;
+						this.lien[j][i] = false;
+						if (nbLien(this.lien[i]) < 3) break;
+					}
+				}
+			}
+		}
+	}
+	
+	private void path() {
+		for (int i = 0; i < this.numberOfNode - 1; ++i) {
+			this.lien[i][i+1] = true;
+			this.lien[i + 1][i] = true;
+		}
+	}
+	private int nbLien(boolean [] mat) {
+		int res = 0;
+		for (Boolean a:mat) {
+			if (a != null && a == true) res++;
+		}
+		return res;
 	}
 	/**
 	 *  Test de validité des chemin d'une station
@@ -92,12 +153,12 @@ public class Instance {
 	 * @param chemin les chemins de la station
 	 * @return si il existe au moins 2 chemins renvoie true, sinon renvoie false 
 	 */
-	public boolean valide(boolean[] chemin) {
+	private boolean valide(boolean[] chemin) {
 		int i = 0;
 		for (boolean val : chemin) {
 			if (val) i++;
 		}
-		return i > 1;
+		return i > 0;
 	}
 	/**
 	 * 
@@ -112,9 +173,20 @@ public class Instance {
 	 * 
 	 * @param nbrNode
 	 */
-	public Instance(int nbrNode) {
+	private Instance(int nbrNode) {
 		this.numberOfNode = nbrNode;
 		this.initLien();
 		this.initFlux();
+		this.initDistance();
+		this.initAlpha();
+		this.initTime();
+	}
+	public static Instance getInstance() {
+		return inst;
+	}
+	
+	public static Instance getNewInstance(int nbrNode) {
+		inst = new Instance(nbrNode);
+		return inst;
 	}
 }

@@ -1,4 +1,4 @@
-package graphic;
+	package graphic;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -71,7 +71,6 @@ public class MainWindow {
 	 */
 	public MainWindow() {
 		initialize();
-		instance.revalidate();
 	}
 
 	/**
@@ -126,7 +125,7 @@ public class MainWindow {
 		stat = new JInternalFrame("Statistics", true, true, true);
 		stat.setBounds(instance.getX() + instance.getWidth() , instance.getY(),(int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.48));
 		stat.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		stat.getContentPane().setLayout(null);
+		//stat.getContentPane().setLayout(null);
 		stat.getContentPane().setBackground(Color.LIGHT_GRAY);
 		container.add(stat);
 		stat.addComponentListener(new ComponentAdapter() {
@@ -143,7 +142,7 @@ public class MainWindow {
 		solution = new JInternalFrame("Solution", true, true, true);
 		solution.setBounds(instance.getX() + instance.getWidth(), stat.getY() + stat.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
 		solution.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		solution.getContentPane().setLayout(null);
+		//solution.getContentPane().setLayout(null);
 		solution.getContentPane().setBackground(Color.LIGHT_GRAY);
 		container.add(solution);
 		solution.addComponentListener(new ComponentAdapter() {
@@ -172,7 +171,8 @@ public class MainWindow {
 				jop = new JOptionPane();
 			    int nbr = Integer.parseInt(JOptionPane.showInputDialog(null, "Saisir le nombre de Station", "Generateur d'instance", JOptionPane.QUESTION_MESSAGE));		
 				System.out.println("Generation en cours avec "+nbr+" stations");
-				tmpInst = new Instance(nbr);
+				jop = null;
+				tmpInst = Instance.getNewInstance(nbr);
 				instanceOfPrint = new GraphPrinter(instance, tmpInst);
 				instance.getContentPane().removeAll();
 				instance.getContentPane().add(instanceOfPrint.graphIt());
@@ -211,7 +211,7 @@ public class MainWindow {
 		});
 		menu_Methods.add(checkBoxMenuItem);
 		
-		checkBoxMenuItem_1 = new JCheckBoxMenuItem("Heuristique 2", false);
+		checkBoxMenuItem_1 = new JCheckBoxMenuItem("Heuristique 1", false);
 		checkBoxMenuItem_1.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if (checkBoxMenuItem_1.getState()) {
@@ -223,7 +223,7 @@ public class MainWindow {
 		});
 		menu_Methods.add(checkBoxMenuItem_1);
 		
-		checkBoxMenuItem_2 = new JCheckBoxMenuItem("Heuristique 3", false);
+		checkBoxMenuItem_2 = new JCheckBoxMenuItem("Heuristique 2", false);
 		checkBoxMenuItem_2.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if (checkBoxMenuItem_2.getState()) {
@@ -243,12 +243,23 @@ public class MainWindow {
 		LaunchSol.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
+				if (instanceOfPrint != null && instanceOfPrint.instance != null)
 				if (checkBoxMenuItem.isSelected()) {
 					try {
+						double t = System.currentTimeMillis();
 						instanceOfSolver = new Vrp_solver(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
 						instanceOfSolver.resolve();
+						System.out.println("temps d'execution : " + (System.currentTimeMillis() - t) );
 						instanceOfSolver.prindTrajet();
 						instanceOfSolver.printInformation();
+						
+						tmpInst = Instance.getInstance();
+						instanceOfPrint = new GraphPrinter(instance, tmpInst);
+						solution.getContentPane().removeAll();
+						solution.getContentPane().add(instanceOfPrint.graphIt());
+						solution.repaint();
+						solution.revalidate();
+						
 					} catch (GRBException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
