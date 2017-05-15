@@ -548,7 +548,7 @@ public class Vrp_solver {
 	public double getObjectif() {
 		return objectif;
 	}
-	public void setObjectif(double objectif) {
+	private void setObjectif(double objectif) {
 		this.objectif = objectif;
 	}
 	public void prindTrajet()

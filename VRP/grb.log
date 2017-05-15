@@ -284,3 +284,25 @@ Pool objective bound 37.4261
 
 Optimal solution found (tolerance 1.00e-04)
 Best objective 3.742612356203e+01, best bound 3.742609021881e+01, gap 0.0001%
+
+Gurobi 7.0.2 (linux64, Java) logging started lun. 15 mai 2017 22:58:05 CEST
+
+Optimize a model with 4643 rows, 4160 columns and 11644 nonzeros
+Variable types: 1430 continuous, 2730 integer (2730 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 3e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [5e-02, 3e+01]
+Presolve removed 4643 rows and 4160 columns
+Presolve time: 0.00s
+Presolve: All rows and columns removed
+
+Explored 0 nodes (0 simplex iterations) in 0.01 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: 71.5646 
+Pool objective bound 71.5646
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 7.156464593529e+01, best bound 7.156464593529e+01, gap 0.0000%

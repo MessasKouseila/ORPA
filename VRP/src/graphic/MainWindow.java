@@ -43,10 +43,12 @@ public class MainWindow {
 	JCheckBoxMenuItem checkBoxMenuItem_1;
 	JCheckBoxMenuItem checkBoxMenuItem_2;
 	int width = 768;
-	int height = 1024; 
+	int height = 1024;
+
 	/**
 	 * Launch the application.
 	 */
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -256,7 +258,7 @@ public class MainWindow {
 						tmpInst = Instance.getInstance();
 						instanceOfPrint = new GraphPrinter(instance, tmpInst);
 						solution.getContentPane().removeAll();
-						solution.getContentPane().add(instanceOfPrint.graphIt());
+						solution.getContentPane().add(instanceOfPrint.graphSol());
 						solution.repaint();
 						solution.revalidate();
 						

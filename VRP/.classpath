@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="at.bestsolution.efxclipse.tooling.jdt.core.JAVAFX_CONTAINER"/>
-	<classpathentry kind="lib" path="/mnt/06A68C79A68C6B4F/Master_1/Semestre_2/ORPA/VRP/lib/jgraphx.jar"/>
+	<classpathentry kind="lib" path="/mnt/06A68C79A68C6B4F/Master_1/Semestre_2/project/ORPA/VRP/lib/jgraphx.jar"/>
 	<classpathentry kind="lib" path="/opt/gurobi702/linux64/lib/gurobi.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

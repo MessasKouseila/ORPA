@@ -26,7 +26,7 @@ public class Instance {
 		for (int i = 0; i < this.numberOfNode; ++i) {
 			for (int j = 0; j < this.numberOfNode; ++j) {
 				if (this.lien[i][j]) {
-					this.t[i][j] = (int)this.d[i][j] / 100;	
+					this.t[i][j] = (int)this.d[i][j] / 100;
 				} else {
 					this.t[i][j] = 0;
 				}
@@ -48,8 +48,8 @@ public class Instance {
 		for (int i = 0; i < this.numberOfNode; ++i) {
 			for (int j = 0; j < this.numberOfNode; ++j) {
 				if (this.lien[i][j]) {
-					this.d[i][j] = (int)Rand(101, 505);
-					this.d[j][i] = (int)Rand(101, 505);	
+					this.d[i][j] = (int)Rand(101, 801);
+					this.d[j][i] = (int)Rand(101, 801);
 				} else {
 					this.d[i][j] = 0;
 					this.d[j][i] = 0;
@@ -91,43 +91,50 @@ public class Instance {
 	private void initLien() {
 		this.lien = new boolean[this.numberOfNode][this.numberOfNode];
 		for (int i = 0; i < this.numberOfNode; ++i) {
-			for (int j = 0; j < this.numberOfNode; ++j) {
-				// une station ne peut pas avoir de chemin vers elle même
-				if (i == j) {
-					this.lien[i][j] = false;
-				// on initialise aleatoirement l'existance de liens de la station base 
-				} else if (i == 0) {
-					if (nbLien(this.lien[i]) < 2) {
-						this.lien[i][j] = rand.nextInt() > 0.5;
-					}			
-				} else {
-					// si une station i à un chemin vers une station j
-					// alors la station j doit avoir un lien avec la station i
-					if (j <= i) {
-						this.lien[i][j] = this.lien[j][i];
-					} else {
-						// on initialise aleatoirement l'existance de liens
-						if (nbLien(this.lien[i]) < 2) {
-							this.lien[i][j] = rand.nextInt() > 0.5;
-						}
-					}
-				}
-			}
-			if (!this.valide(lien[i])) i--;
-		}
-		this.clean();
-		this.path();
-	}
+            for (int j = 0; j < this.numberOfNode; ++j) {
+                if (i == j) {
+                    this.lien[i][j] = false;
+                    this.lien[j][i] = false;
+                    // on initialise aleatoirement l'existance de liens de la station base
+                } else if (i == 0) {
+                    if (nbLien(this.lien[i]) < 2) {
+                        this.lien[i][j] = rand.nextDouble() > 0.5;
+                        this.lien[j][i] = this.lien[i][j];
+                    }
+                } else {
+                    if (j < i) {
+                        this.lien[i][j] = this.lien[j][i];
+                    } else {
+                        // on initialise aleatoirement l'existance de liens
+                        if (nbLien(this.lien[i]) < 2) {
+                            this.lien[i][j] = rand.nextDouble() > 0.5;
+                            this.lien[j][i] = this.lien[i][j];
+                        }
+                    }
+                }
+            }
+            if (!this.valide(lien[i])) {
+                int tmp = i;
+                while (i == tmp) {
+                    tmp = rand.nextInt(this.numberOfNode);
+                }
+                this.lien[i][tmp] = true;
+                this.lien[tmp][i] = true;
+            }
+        }
+        this.clean();
+        this.path();
+    }
 	
 	private void clean() {
 		
 		for (int i = 0; i < this.numberOfNode; ++i) {
-			if (nbLien(this.lien[i]) > 2) {
+			if (nbLien(this.lien[i]) > 1) {
 				for (int j = 0; j < this.numberOfNode; ++j) {
 					if (this.lien[i][j] == true && nbLien(this.lien[j]) > 1) {
 						this.lien[i][j] = false;
 						this.lien[j][i] = false;
-						if (nbLien(this.lien[i]) < 3) break;
+						if (nbLien(this.lien[i]) < 2) break;
 					}
 				}
 			}
