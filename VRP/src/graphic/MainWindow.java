@@ -89,10 +89,12 @@ public class MainWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		// on recupere la taille de l'écrans surlequel s'execute l'applciation
 		Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		height = (int)dimension.getHeight();
 		width  = (int)dimension.getWidth();
-		
+		// fenetre contenant l'ensemble des element graphique
+		// conteneur général
 		frame = new JFrame();
 		frame.setTitle("ORPA");
 		frame.setAlwaysOnTop(false);
@@ -104,7 +106,7 @@ public class MainWindow {
 		container = new JDesktopPane();
 		container.setSize(frame.getWidth(), frame.getHeight());
 		frame.getContentPane().add(container);
-		
+		// adaptation de la taille des element graphique interne en fonction du redimentionnement effectué sur la fenetre principale
 		frame.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -117,7 +119,7 @@ public class MainWindow {
 		});
 		
 		
-		
+		// affichage du graphe representant l'instance generer
 		instance = new JInternalFrame("INSTANCE", true, true, true);
 		instance.setBounds(0, 0, (int)(frame.getWidth()*0.60), (int)(frame.getHeight() - 50));
 		instance.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -133,7 +135,7 @@ public class MainWindow {
 		});
 		
 		
-
+		// fenetre permettant d'afficher des informations concernant l'instance
 		stat = new JInternalFrame("Statistics", true, true, true);
 		stat.setBounds(instance.getX() + instance.getWidth() , instance.getY(),(int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.48));
 		stat.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -150,7 +152,7 @@ public class MainWindow {
 		});
 		
 		
-
+		// fenetre permettant d'afficher la solution sous forme graphique
 		solution = new JInternalFrame("Solution", true, true, true);
 		solution.setBounds(instance.getX() + instance.getWidth(), stat.getY() + stat.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
 		solution.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
