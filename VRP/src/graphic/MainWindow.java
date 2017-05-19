@@ -1,5 +1,6 @@
 package graphic;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -9,15 +10,22 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import Statistics.Statistique;
@@ -31,13 +39,15 @@ public class MainWindow {
 	private Statistique instanceOfStat;
 	private GraphPrinter instanceOfPrint;
 	private Instance tmpInst;
-	
-	
+	private int clicked = 0;
+	private int[] instant;
+	private Map<Integer, Integer> solTime; 
 	private JFrame frame;
 	private JDesktopPane container;
 	private JInternalFrame instance;
 	private JInternalFrame stat;
 	private JInternalFrame solution;
+	private JPanel SolutionPage;
 	
 	JCheckBoxMenuItem checkBoxMenuItem;
 	JCheckBoxMenuItem checkBoxMenuItem_1;
@@ -144,8 +154,56 @@ public class MainWindow {
 		solution = new JInternalFrame("Solution", true, true, true);
 		solution.setBounds(instance.getX() + instance.getWidth(), stat.getY() + stat.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
 		solution.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//solution.getContentPane().setLayout(null);
+		solution.getContentPane().setLayout(null);
 		solution.getContentPane().setBackground(Color.LIGHT_GRAY);
+		
+		SolutionPage = new JPanel();
+		SolutionPage.setBounds(3, 25, (int)(solution.getWidth() - 18), (int)(solution.getHeight() - 60));
+		
+		solution.getContentPane().add(SolutionPage);
+		SolutionPage.setLayout(new BorderLayout());
+		
+		JLabel instantT = new JLabel("instant t = "+clicked);
+		instantT.setBounds(12, 0, 120, 25);
+		solution.getContentPane().add(instantT);
+		
+		JButton nextPage = new JButton(">");
+		nextPage.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (clicked < instant.length - 1) {
+					clicked++;
+					//instanceOfPrint = new GraphPrinter(instance, tmpInst);
+					SolutionPage.removeAll();
+					SolutionPage.add(instanceOfPrint.graphSol(solTime.get(instant[clicked])), BorderLayout.CENTER);
+					SolutionPage.revalidate();
+					SolutionPage.repaint();
+					instantT.setText("instant t = " + instant[clicked]);
+				}
+				
+			}
+		});
+		nextPage.setBounds(216, 0, 50, 25);
+		solution.getContentPane().add(nextPage);
+		
+		JButton previewPage = new JButton("<");
+		previewPage.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (clicked > 0) {
+					clicked--;
+					//instanceOfPrint = new GraphPrinter(instance, tmpInst);
+					SolutionPage.removeAll();
+					SolutionPage.add(instanceOfPrint.graphSol(solTime.get(instant[clicked])), BorderLayout.CENTER);
+					SolutionPage.revalidate();
+					SolutionPage.repaint();
+					instantT.setText("instant t = " + instant[clicked]);
+				}	
+			}
+		});
+		previewPage.setBounds(150, 0, 50, 25);
+		solution.getContentPane().add(previewPage);
+		
 		container.add(solution);
 		solution.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -153,6 +211,7 @@ public class MainWindow {
 				instance.moveToBack();
 				solution.moveToFront();
 				stat.moveToBack();
+				SolutionPage.setBounds(3, 25, (int)(solution.getWidth() - 18), (int)(solution.getHeight() - 60));
 			}
 		});
 		
@@ -166,15 +225,37 @@ public class MainWindow {
 		JMenu menu_Problem = new JMenu("Problem");
 		menuBar.add(menu_Problem);
 		JMenuItem Problem_new = new JMenuItem("New");
+		JTextField numberNode = new JTextField(5);
+	    JTextField timeSimul = new JTextField(5);
 		Problem_new.addMouseListener(new MouseAdapter() {
-			private JOptionPane jop;
 			@Override
 			public void mousePressed(MouseEvent e) {
-				jop = new JOptionPane();
+
+			    JPanel myPanel = new JPanel();
+			    myPanel.add(new JLabel("stations :"));
+			    myPanel.add(numberNode);
+			    myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+			    myPanel.add(new JLabel("duration :"));
+			    myPanel.add(timeSimul);
+			    int nbr = 0;
+			    int timeS = 0;
+			    int result = JOptionPane.showConfirmDialog(null, myPanel,
+			        "number of stations and Duration of simulation", JOptionPane.OK_CANCEL_OPTION);
+			    if (result == JOptionPane.OK_OPTION) {
+			      nbr = Integer.parseInt(numberNode.getText());
+			      timeS = Integer.parseInt(timeSimul.getText());
+			    }
+			    
+				/*jop = new JOptionPane();
 			    int nbr = Integer.parseInt(JOptionPane.showInputDialog(null, "Saisir le nombre de Station", "Generateur d'instance", JOptionPane.QUESTION_MESSAGE));		
-				System.out.println("Generation en cours avec "+nbr+" stations");
-				jop = null;
-				tmpInst = Instance.getNewInstance(nbr);
+				System.out.println("Generation en cours avec "+nbr+" stations");*/
+			    
+				tmpInst = Instance.getNewInstance(nbr, timeS);
+				SolutionPage.removeAll();
+				SolutionPage.revalidate();
+				SolutionPage.repaint();
+				clicked = 0;
+				instantT.setText("instant t = " + clicked);
 				instanceOfPrint = new GraphPrinter(instance, tmpInst);
 				instance.getContentPane().removeAll();
 				instance.getContentPane().add(instanceOfPrint.graphIt());
@@ -248,21 +329,29 @@ public class MainWindow {
 				if (instanceOfPrint != null && instanceOfPrint.instance != null)
 				if (checkBoxMenuItem.isSelected()) {
 					try {
-						double t = System.currentTimeMillis();
 						instanceOfSolver = new Vrp_solver(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
-						instanceOfSolver.resolve();
-						System.out.println("temps d'execution : " + (System.currentTimeMillis() - t) );
-						instanceOfSolver.prindTrajet();
-						instanceOfSolver.printInformation();
+						Thread solveIt = new Thread(instanceOfSolver);
+						//instanceOfSolver.resolve();
+						solveIt.start();
+						//System.out.println("temps d'execution : " + (System.currentTimeMillis() - t) );
+						solveIt.join();
+						solTime = instanceOfSolver.result();
+						instant = new int [solTime.size() + 1];
+						int klm = 0;
+						solTime.put(0, 0);
+						for(Entry<Integer, Integer> entry : solTime.entrySet()) {
+						    System.out.println(entry.getKey() + " ==> " + entry.getValue());
+						    instant[klm] = entry.getKey();
+						    klm++;
+						}
+						//tmpInst = Instance.getInstance();
+						//instanceOfPrint = new GraphPrinter(instance, tmpInst);
+						SolutionPage.removeAll();
+						SolutionPage.add(instanceOfPrint.graphSol(0), BorderLayout.CENTER);
+						SolutionPage.revalidate();
+						SolutionPage.repaint();
 						
-						tmpInst = Instance.getInstance();
-						instanceOfPrint = new GraphPrinter(instance, tmpInst);
-						solution.getContentPane().removeAll();
-						solution.getContentPane().add(instanceOfPrint.graphSol());
-						solution.repaint();
-						solution.revalidate();
-						
-					} catch (GRBException e1) {
+					} catch (GRBException | InterruptedException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}

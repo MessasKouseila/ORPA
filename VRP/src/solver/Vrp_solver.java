@@ -1,5 +1,8 @@
 package solver;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import gurobi.GRB;
 import gurobi.GRBEnv;
 import gurobi.GRBException;
@@ -7,14 +10,14 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 
-public class Vrp_solver {
-	
-	
+public class Vrp_solver implements Runnable{
+
+
 	/////// Environnement GUROBI //////////////////////////
 	private GRBEnv env;
 	private GRBModel model;
 	////////////////////////////////////////////
-	
+
 	//// Variable///////////////////////////////////////////////
 	private GRBVar x[][][];
 	private GRBVar theta[][][];
@@ -22,8 +25,8 @@ public class Vrp_solver {
 	private GRBVar q[][];
 	private GRBVar z[][];
 	///////////////////////////////////////////////////////////
-	
-	
+
+
 	////// Constantes /////////////////////////////////////////
 	private int M;
 	private int R;
@@ -36,7 +39,7 @@ public class Vrp_solver {
 	private int temps[][];
 	private int tempsfin;
 	///////////////////////////////////////
-	
+
 	///// Resolution ///////////////////////
 	private double xresolu[][][];
 	private double thetaresolu[][][];
@@ -45,14 +48,14 @@ public class Vrp_solver {
 	private double zresolu[][];
 	private double objectif;
 	//////////////////////////
-	
+
 	/** config env
 	 * GUROBI_HOME		/opt/gurobi702/linux64
 	 * PATH				/opt/gurobi702/linux64/bin"
 	 * LD_LIBRARY_PATH	/opt/gurobi702/linux64/lib"
 	 */
-	
-	
+
+
 	/**
 	 * 
 	 * @param nombreStation Le nombre de station
@@ -79,14 +82,14 @@ public class Vrp_solver {
 		this.tempsfin = tempsfin;
 		routeok = new boolean[nombreStation][nombreStation];
 		range = new boolean[nombreStation][nombreStation];
-		
+
 		x = new GRBVar[nombreStation][nombreStation][tempsfin];
 		theta= new GRBVar[nombreStation][nombreStation][tempsfin];
 		f  = new GRBVar[nombreStation][nombreStation][tempsfin];
 		q = new GRBVar[nombreStation][tempsfin];
 		z= new GRBVar[nombreStation][tempsfin];
-		
-		
+
+
 		xresolu = new double[nombreStation][nombreStation][tempsfin];
 		thetaresolu= new double[nombreStation][nombreStation][tempsfin];
 		fresolu  = new double[nombreStation][nombreStation][tempsfin];
@@ -96,18 +99,18 @@ public class Vrp_solver {
 			for(int j = 0 ; j < nombreStation ; j++)
 			{
 				routeok[i][j] = (temps[i][j] > 0);
-				
+
 				range[i][j] = (d[i][j] > 0);
-				
+
 			}
-	
+
 	}
 	public void resolve() throws GRBException
 	{
 		this.createVariable();
-		
+
 		this.objectiveFunction();
-		
+
 		this.routingConstraint();
 		this.transferConstraint();
 		this.amountInformationConstraint();
@@ -115,7 +118,7 @@ public class Vrp_solver {
 		//model.feasRelax(GRB.FEASRELAX_LINEAR, true, false, true);
 		model.optimize();
 		//model.computeIIS();
-		 //model.write("model.ilp");
+		//model.write("model.ilp");
 		for(int i = 0 ; i < nombreStation ; i++)
 			for(int j = 0 ; j < nombreStation ; j++)
 				for(int g = 0 ; g < tempsfin ; g++ )
@@ -123,100 +126,100 @@ public class Vrp_solver {
 		for(int i = 0 ; i <nombreStation ; i++)
 			for(int g = 0 ; g < tempsfin ; g++ )
 				this.zresolu[i][g] =z[i][g].get(GRB.DoubleAttr.X); 
-		
+
 		for(int i = 0 ; i < nombreStation ; i++)
 			for(int g = 0 ; g < tempsfin ; g++ )
 				this.qresolu[i][g] = q[i][g].get(GRB.DoubleAttr.X);
-		
+
 		for(int i = 0 ; i < nombreStation ; i++)
 			for(int j = 0 ; j < nombreStation ; j++)
 				for(int g = 0 ; g < tempsfin ; g++ )
 					this.fresolu[i][j][g] = f[i][j][g].get(GRB.DoubleAttr.X);
-		
+
 		for(int i = 0 ; i < nombreStation ; i++)
 			for(int j = 0 ; j < nombreStation ; j++)
 				for(int g = 0 ; g < tempsfin ; g++ )
 					this.thetaresolu[i][j][g] = theta[i][j][g].get(GRB.DoubleAttr.X);
 		objectif =  model.get(GRB.DoubleAttr.ObjVal);
-		
+
 		model.dispose();
-	    env.dispose();
+		env.dispose();
 	}
 	private void createVariable() throws GRBException
 	{
-		
+
 		// Variable x_i_j_k tel que i et j sont des noeuds et k un temps
 		for(int i = 0 ; i < nombreStation ; i++)
 			for(int j = 0 ; j < nombreStation ; j++)
 				for(int g = 0 ; g < tempsfin ; g++ )
-				x[i][j][g] = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, "x_"+i+"_"+j+"_"+g);
-	
+					x[i][j][g] = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, "x_"+i+"_"+j+"_"+g);
+
 		//Variable 
-			for(int i = 0 ; i <nombreStation ; i++)
-				for(int g = 0 ; g < tempsfin ; g++ )
-					z[i][g] = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, "z_"+i+"_"+g);
+		for(int i = 0 ; i <nombreStation ; i++)
+			for(int g = 0 ; g < tempsfin ; g++ )
+				z[i][g] = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, "z_"+i+"_"+g);
 		//Variable q_j_k
 		for(int i = 0 ; i < nombreStation ; i++)
 			for(int g = 0 ; g < tempsfin ; g++ )
 				q[i][g] = model.addVar(0.0,GRB.INFINITY, 0.0, GRB.CONTINUOUS, "q_"+i+"_"+g);
-		
+
 		// Variable f_i_j_k tel que i et j sont des noeuds et k un temps
-				for(int i = 0 ; i < nombreStation ; i++)
-					for(int j = 0 ; j < nombreStation ; j++)
-						for(int g = 0 ; g < tempsfin ; g++ )
-							f[i][j][g] = model.addVar(0.0,GRB.INFINITY, 0.0,GRB.CONTINUOUS, "f_"+i+"_"+j+"_"+g);		
-				
-				// Variable theta_i_j_k tel que i et j sont des noeuds et k un temps
-				for(int i = 0 ; i < nombreStation ; i++)
-					for(int j = 0 ; j < nombreStation ; j++)
-						for(int g = 0 ; g < tempsfin ; g++ )
-							theta[i][j][g] = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, "theta_"+i+"_"+j+"_"+g);
+		for(int i = 0 ; i < nombreStation ; i++)
+			for(int j = 0 ; j < nombreStation ; j++)
+				for(int g = 0 ; g < tempsfin ; g++ )
+					f[i][j][g] = model.addVar(0.0,GRB.INFINITY, 0.0,GRB.CONTINUOUS, "f_"+i+"_"+j+"_"+g);		
+
+		// Variable theta_i_j_k tel que i et j sont des noeuds et k un temps
+		for(int i = 0 ; i < nombreStation ; i++)
+			for(int j = 0 ; j < nombreStation ; j++)
+				for(int g = 0 ; g < tempsfin ; g++ )
+					theta[i][j][g] = model.addVar(0.0, 1.0, 0.0, GRB.BINARY, "theta_"+i+"_"+j+"_"+g);
 	}
-	
+
 	private void routingConstraint() throws GRBException
 	{
-		
+
 		{
 			GRBLinExpr lhs = new GRBLinExpr();
-			
+
 			for(int i = 0 ; i < nombreStation ; i++)
 				if(routeok[0][i])
 					lhs.addTerm(1.0, x[0][i][temps[0][i]]);
 			model.addConstr(lhs, GRB.EQUAL, 1, "RouteConst1");
-		
+
 		}
-		
+
 		{
 			GRBLinExpr	lhs = new GRBLinExpr();
-			
+
 			for(int i = 0 ; i < nombreStation ; i++)
 				if(routeok[i][0])
 					lhs.addTerm(1.0, x[i][0][ tempsfin - 1 ]);
 			model.addConstr(lhs, GRB.EQUAL, 1, "RouteConst2");		
 		}
 		{
-			
+
 			for(int k = 0; k < tempsfin   ; k++)
 				for(int j = 0 ; j < nombreStation ; j++)
 				{
 					GRBLinExpr	lhs = new GRBLinExpr();
 					GRBLinExpr	rhs = new GRBLinExpr();
-					 lhs.addTerm(1.0, z[j][k]);
-					
+					lhs.addTerm(1.0, z[j][k]);
+
 					for(int p = 0 ; p < nombreStation ; p++)
 						if(routeok[j][p] && ( (k + temps[j][p]) < (tempsfin) ) )
-							{
-								rhs.addTerm(1.0, x[j][p][k + temps[j][p]]);
-								
-							}
-					
-							
+						{
+							rhs.addTerm(1.0, x[j][p][k + temps[j][p]]);
+
+						}
+
+
 					model.addConstr(lhs, GRB.LESS_EQUAL, rhs, "RouteConst43_"+j+"_"+k);		
 				}
-		
+
 		}
 		/*{
-			
+
 			for(int k = 0; k < tempsfin   ; k++)
 				for(int j = 0 ; j < nombreStation ; j++)
 				{
@@ -226,85 +229,85 @@ public class Vrp_solver {
 					for(int i = 0 ; i < nombreStation ; i++)
 						if(routeok[i][j])
 							rhs.addTerm(1.0, x[i][j][k]);
-					
-					
-							
+
+
+
 					model.addConstr(lhs, GRB.EQUAL, rhs, "RouteConst3_"+j+"_"+k);		
 				}
-		
+
 		}*/
-		
+
 		{
 			for(int k = 0 ; k <  (tempsfin - 1)    ; k++)
 				for(int i = 0 ; i < nombreStation ; i++)
-				for(int j = 0 ; j < nombreStation ; j++)
-				{
-					GRBLinExpr lhs = new GRBLinExpr();
-					GRBLinExpr rhs = new GRBLinExpr();
-					
-					lhs.addTerm(1.0, x[i][j][k]);
-			
-					
-			/*	for(int i = 0 ; i < nombreStation ; i++)
+					for(int j = 0 ; j < nombreStation ; j++)
+					{
+						GRBLinExpr lhs = new GRBLinExpr();
+						GRBLinExpr rhs = new GRBLinExpr();
+
+						lhs.addTerm(1.0, x[i][j][k]);
+
+
+						/*	for(int i = 0 ; i < nombreStation ; i++)
 						if(routeok[j][i])
 							lhs1.addTerm(1.0, x[i][j][k]);
-				*/
-					for(int p = 0 ; p < nombreStation ; p++)
-						if(routeok[j][p] && ( (k + temps[j][p]) < (tempsfin) ) )
+						 */
+						for(int p = 0 ; p < nombreStation ; p++)
+							if(routeok[j][p] && ( (k + temps[j][p]) < (tempsfin) ) )
 							{
 								rhs.addTerm(1.0, x[j][p][k + temps[j][p]]);
-								
+
 							}
-				
-					rhs.addTerm(1.0, z[j][k+1]);
-			
+
+						rhs.addTerm(1.0, z[j][k+1]);
+
 						model.addConstr(lhs, GRB.LESS_EQUAL, rhs, "RouteConst33_"+i+"_"+j+"_"+k);
-				}
+					}
 		}
-		
+
 		/*	{
 			for(int k = 0 ; k <  (tempsfin - 1)    ; k++)
 				for(int j = 0 ; j < nombreStation ; j++)
 				{
 					GRBLinExpr lhs1 = new GRBLinExpr();
 					GRBLinExpr lhs2 = new GRBLinExpr();
-					
+
 					lhs1.addTerm(1.0, z[j][k]);
-			
-					
+
+
 				for(int i = 0 ; i < nombreStation ; i++)
 						if(routeok[j][i])
 							lhs1.addTerm(1.0, x[i][j][k]);
-				
+
 					for(int p = 0 ; p < nombreStation ; p++)
 						if(routeok[j][p] && ( (k + temps[j][p]) < (tempsfin) ) )
 							{
 								lhs2.addTerm(1.0, x[j][p][k + temps[j][p]]);
-								
+
 							}
-				
-					
-			
+
+
+
 						model.addConstr(lhs1, GRB.GREATER_EQUAL, lhs2, "RouteConst4_"+j+"_"+k);
 				}
 		}	*/
-{
-			
+		{
+
 			for(int k = 1 ; k < tempsfin   ; k++)
 				for(int j = 0 ; j < nombreStation ; j++)
 					for(int i = 1 ; i < nombreStation ; i++)
 					{	if(routeok[i][j]  && (k - temps[i][j]) < 0)
-						{
-						
-							GRBLinExpr	rhs = new GRBLinExpr();
-							rhs.addTerm(1, x[i][j][k]);
-							
-							model.addConstr(rhs, GRB.EQUAL, 0, "RouteConst100_"+i+"_"+j+"_"+k);
-						
-						}
+					{
+
+						GRBLinExpr	rhs = new GRBLinExpr();
+						rhs.addTerm(1, x[i][j][k]);
+
+						model.addConstr(rhs, GRB.EQUAL, 0, "RouteConst100_"+i+"_"+j+"_"+k);
+
+					}
 					}
 		}
-	/*
+		/*
 		{
 			GRBLinExpr	lhs = new GRBLinExpr();
 			GRBLinExpr	rhs;
@@ -319,35 +322,35 @@ public class Vrp_solver {
 							rhs.addTerm(1.0, x[i][j][k]);
 					model.addConstr(rhs, GRB.LESS_EQUAL, lhs, "RouteConst8_"+j+"_"+k);		
 				}
-		
+
 		}*/
-		
-			
-		
-{
-			
+
+
+
+		{
+
 			for(int k = 0; k < tempsfin; k++)
-			for(int j = 0; j< nombreStation;j++)
-			for(int i = 0 ; i < nombreStation ; i++)
-			{	GRBLinExpr	lhs = new GRBLinExpr();
-				if(!routeok[i][j]){
-					lhs.addTerm(1.0, x[i][j][ k ]);
-					
-					model.addConstr(lhs, GRB.EQUAL, 0, "RouteConst5_"+i+"_"+j+"_"+k);
-			
-			}
-			}
+				for(int j = 0; j< nombreStation;j++)
+					for(int i = 0 ; i < nombreStation ; i++)
+					{	GRBLinExpr	lhs = new GRBLinExpr();
+					if(!routeok[i][j]){
+						lhs.addTerm(1.0, x[i][j][ k ]);
+
+						model.addConstr(lhs, GRB.EQUAL, 0, "RouteConst5_"+i+"_"+j+"_"+k);
+
+					}
+					}
 		}
-		
+
 		/*{
 			GRBLinExpr	lhs = new GRBLinExpr();
 			GRBLinExpr	rhs = new GRBLinExpr();
 			for(int k = 1 ; k < tempsfin - 1  ; k++)
 			{	
-				
+
 				for(int j = 0 ; j < nombreStation ; j++)
 				{
-					
+
 					lhs = new GRBLinExpr();
 					rhs = new GRBLinExpr();
 					lhs.addTerm(1.0, z[j][k]);
@@ -355,9 +358,9 @@ public class Vrp_solver {
 						if(routeok[j][p] && ( (k + temps[j][p]) < (tempsfin) ) )
 							{
 								lhs.addTerm(1.0, x[j][p][k + temps[j][p]]);
-								
+
 							}
-					
+
 					for(int i = 0 ;i < nombreStation; i++)
 						if(routeok[i][j])
 							rhs.addTerm(1.0,x[i][j][k]);
@@ -365,41 +368,41 @@ public class Vrp_solver {
 					model.addConstr(lhs, GRB.EQUAL, rhs, "RouteConst7_"+j+"_"+k);	
 				}
 			}
-			
-		
+
+
 		}*/
-		 {
-		 
+		{
+
 			GRBLinExpr	lhs = new GRBLinExpr();
 			for(int k = 0; k < tempsfin   ; k++)
 			{	
 				lhs = new GRBLinExpr();
 				for(int j = 0 ; j < nombreStation ; j++)
 				{			 
-					 lhs.addTerm(1.0, z[j][k]);
-						
+					lhs.addTerm(1.0, z[j][k]);
+
 				}
 				for(int j = 0 ; j < nombreStation ; j++)
 				{for(int i = 0 ; i < nombreStation ; i++)
 					if(routeok[i][j])
-					 lhs.addTerm(1.0, x[i][j][k]);
-						
+						lhs.addTerm(1.0, x[i][j][k]);
+
 				}
 				model.addConstr(lhs, GRB.LESS_EQUAL, 1, "RouteConst6_"+k);	
 			}
-		
+
 		}
 		/*
 		{
 			GRBLinExpr	lhs = new GRBLinExpr();
 			for(int k = 0 ; k < tempsfin   ; k++)
 			{	
-				
+
 				model.addConstr(z[0][0], GRB.EQUAL, 1, "RouteConst11");	
 			}
 		}*/
 	}
-	
+
 	private void transferConstraint() throws GRBException
 	{
 		{
@@ -408,36 +411,36 @@ public class Vrp_solver {
 				{
 					GRBLinExpr lhs1 = new GRBLinExpr();
 					GRBLinExpr lhs2 = new GRBLinExpr();
-					
-					
+
+
 					for(int j = 0 ; j < nombreStation ; j++)
 						if(range[j][i])
 							lhs1.addTerm(1.0, theta[j][i][k]);
-					
+
 					lhs2.addTerm(M,z[i][k]);
-					
+
 					model.addConstr(lhs1, GRB.LESS_EQUAL, lhs2, "transferConstraint1_"+i+"_"+k);
 				}
 		}
-		
-		
+
+
 		{
 			for(int k = 0 ; k < tempsfin ; k++)
-					for(int i = 0 ; i < nombreStation ; i++)
-						for(int j = 0 ; j < nombreStation ; j++)
+				for(int i = 0 ; i < nombreStation ; i++)
+					for(int j = 0 ; j < nombreStation ; j++)
 					{
-						
+
 						if(range[j][i])
 						{
 							GRBLinExpr lhs1 = new GRBLinExpr();
 							GRBLinExpr lhs2 = new GRBLinExpr();
 							lhs1.addTerm(1.0,f[j][i][k] );
 							lhs2.addTerm( alpha[j][i]*( 1/( 1 + Math.pow( d[j][i] , 2 ) ) )*r[j],theta[j][i][k]);
-						 	model.addConstr(lhs1, GRB.LESS_EQUAL, lhs2, "transferConstraint2_"+j+"_"+i+"_"+k);
+							model.addConstr(lhs1, GRB.LESS_EQUAL, lhs2, "transferConstraint2_"+j+"_"+i+"_"+k);
 						}
 					}
 		}
-		
+
 		{
 			for(int k = 0 ; k < tempsfin ; k++)
 				for(int i = 0 ; i < nombreStation ; i++)
@@ -448,7 +451,7 @@ public class Vrp_solver {
 							lhs1.addTerm(1, f[j][i][k]);
 					model.addConstr(lhs1, GRB.LESS_EQUAL, R, "transferConstraint3_"+i+"_"+k);
 				}
-						
+
 		}
 	}
 	private void amountInformationConstraint() throws GRBException
@@ -456,26 +459,26 @@ public class Vrp_solver {
 		{
 			for(int k = 0 ; k < tempsfin - 1; k++)
 				for(int j = 0 ; j < nombreStation ; j++)
-					{
-					
-							GRBLinExpr lhs1 = new GRBLinExpr();
-							GRBLinExpr lhs2 = new GRBLinExpr();
-							
-							lhs1.addTerm(1.0, q[j][k+1]);
-							
-							lhs2.addTerm(1.0, q[j][k]);
-							lhs2.addConstant(r[j]);
-							for(int i = 0 ; i < nombreStation ; i++)
-								if(range[j][i])
-								{
-									lhs2.addTerm(-1.0, f[j][i][k]);
-								}
-								
-							model.addConstr(lhs1, GRB.EQUAL, lhs2, "amountInformationConstraint1_"+j+"_"+k);
-					}
+				{
+
+					GRBLinExpr lhs1 = new GRBLinExpr();
+					GRBLinExpr lhs2 = new GRBLinExpr();
+
+					lhs1.addTerm(1.0, q[j][k+1]);
+
+					lhs2.addTerm(1.0, q[j][k]);
+					lhs2.addConstant(r[j]);
+					for(int i = 0 ; i < nombreStation ; i++)
+						if(range[j][i])
+						{
+							lhs2.addTerm(-1.0, f[j][i][k]);
+						}
+
+					model.addConstr(lhs1, GRB.EQUAL, lhs2, "amountInformationConstraint1_"+j+"_"+k);
+				}
 		}
-		
-		
+
+
 		{
 			for(int k = 0 ; k < tempsfin ; k++)
 				for(int j = 0 ; j < nombreStation ; j++)
@@ -486,26 +489,26 @@ public class Vrp_solver {
 				}
 		}
 	}
-	
+
 	private void validInequalityConstrain() throws GRBException
 	{
-		
-		
+
+
 		{
 			for(int k = 0 ; k < tempsfin ; k++)
 				for(int i = 0 ; i < nombreStation ; i++)
-				for(int j = 0 ; j < nombreStation ; j++)
-				{
-					GRBLinExpr lhs1 = new GRBLinExpr();
-					GRBLinExpr lhs2 = new GRBLinExpr();
-					lhs1.addTerm(1.0, theta[j][i][k]);
-					lhs2.addTerm(1.0, z[i][k]);
-					model.addConstr(lhs1, GRB.LESS_EQUAL, lhs2, "validInequalityConstrain1_"+i+"_"+"_"+k);
-				}
+					for(int j = 0 ; j < nombreStation ; j++)
+					{
+						GRBLinExpr lhs1 = new GRBLinExpr();
+						GRBLinExpr lhs2 = new GRBLinExpr();
+						lhs1.addTerm(1.0, theta[j][i][k]);
+						lhs2.addTerm(1.0, z[i][k]);
+						model.addConstr(lhs1, GRB.LESS_EQUAL, lhs2, "validInequalityConstrain1_"+i+"_"+"_"+k);
+					}
 		}
-		
-		
-		
+
+
+
 		{
 			for(int k = 0 ; k < tempsfin ; k++)
 				for(int i = 0 ; i < nombreStation ; i++)
@@ -516,19 +519,19 @@ public class Vrp_solver {
 						if(range[j][i])
 							lhs1.addTerm(1.0,f[j][i][k]);
 					lhs2.addTerm(R, z[i][k]);
-				
+
 					model.addConstr(lhs1, GRB.LESS_EQUAL, lhs2, "validInequalityConstrain2_"+i+"_"+k);
 				}
 		}
-		
+
 	}
-	
+
 	private void objectiveFunction() throws GRBException
 	{
-		 GRBLinExpr expr = new GRBLinExpr();
-	     for(int j = 0 ;j < nombreStation ; j++) 
-	    	 expr.addTerm(1.0, q[j][tempsfin-1]); 
-	    model.setObjective(expr, GRB.MINIMIZE);
+		GRBLinExpr expr = new GRBLinExpr();
+		for(int j = 0 ;j < nombreStation ; j++) 
+			expr.addTerm(1.0, q[j][tempsfin-1]); 
+		model.setObjective(expr, GRB.MINIMIZE);
 	}
 	public double[][][] deplacementVehicule() {
 		return xresolu;
@@ -563,18 +566,45 @@ public class Vrp_solver {
 			for(int i = 0 ; i < nombreStation; i++ )
 				for(int j = 0 ; j < nombreStation; j++ )
 				{
-						if(routeok[i][j] && xresolu[i][j][k] == 1)
+					if(routeok[i][j] && xresolu[i][j][k] == 1)
 						System.out.println("x["+i+"]["+j+"]["+k+"]="+xresolu[i][j][k]);
 				}
 	}
-	
-	public void printInformation()
-	{
+	public Map<Integer, Integer> result() {
+		
+		Map<Integer, Integer> res = new HashMap<Integer, Integer>();
 		
 		for(int k = 0 ; k < tempsfin ; k++)
+			for(int i = 0 ; i < nombreStation; i++ )
+				for(int j = 0 ; j < nombreStation; j++ ) {
+					if(routeok[i][j] && xresolu[i][j][k] == 1) {
+						res.put(k, j);
+					}
+				}
+		return res;
+	}
+
+	public void printInformation()
+	{
+
+		for(int k = 0 ; k < tempsfin ; k++)
 		{	for(int i = 0 ; i < nombreStation; i++ )
-						System.out.print("z["+i+"]["+k+"]="+zresolu[i][k]);
-			System.out.println("");
+			System.out.print("z["+i+"]["+k+"]="+zresolu[i][k]);
+		System.out.println("");
 		}		
+	}
+	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		try {
+			this.resolve();
+			this.prindTrajet();
+			this.printInformation();
+		} catch (GRBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

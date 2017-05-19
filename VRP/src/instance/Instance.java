@@ -48,8 +48,8 @@ public class Instance {
 		for (int i = 0; i < this.numberOfNode; ++i) {
 			for (int j = 0; j < this.numberOfNode; ++j) {
 				if (this.lien[i][j]) {
-					this.d[i][j] = (int)Rand(101, 801);
-					this.d[j][i] = (int)Rand(101, 801);
+					this.d[i][j] = (int)Rand(101, 505);
+					this.d[j][i] = (int)Rand(101, 505);
 				} else {
 					this.d[i][j] = 0;
 					this.d[j][i] = 0;
@@ -71,6 +71,26 @@ public class Instance {
 			}
 		}
 	}
+	public void printInfo() {
+		System.out.println("<======== DISTANCE =============>");
+		for (int i = 0; i < this.numberOfNode - 1; ++i) {
+			for (int j = i + 1; j < this.numberOfNode; ++j) {
+				if(this.d[i][j] != 0) System.out.println("Node "+ i +" / "+ j + " ==> "+this.d[i][j]);
+			}
+		}
+		
+		System.out.println("<======== TIME =============>");
+		for (int i = 0; i < this.numberOfNode - 1; ++i) {
+			for (int j = i + 1; j < this.numberOfNode; ++j) {
+				if(this.t[i][j] != 0) System.out.println("Node "+ i +" / "+ j + " ==> "+this.t[i][j]);
+			}
+		}
+		
+		System.out.println("<======== Informations =============>");
+		for (int i = 0; i < this.numberOfNode; ++i) {
+			System.out.println("Node "+ i +" generate ==> "+this.r[i]);
+		}
+	}
 	// Le nombre maximal de stations que peut 
 	public int M = 2;
 	// Capacité maximale de transport d'informations pour un véhicule
@@ -83,9 +103,11 @@ public class Instance {
 	 * @return
 	 */
 	private void initFlux() {
+		double tmp = 0;
 		this.r = new double[this.numberOfNode];
 		for (int i = 0; i < this.numberOfNode; ++i) {
-			this.r[i] = rand.nextDouble();
+			while ((tmp = rand.nextDouble()) == 0);
+			this.r[i] = tmp;
 		}
 	}
 	private void initLien() {
@@ -97,8 +119,8 @@ public class Instance {
                     this.lien[j][i] = false;
                     // on initialise aleatoirement l'existance de liens de la station base
                 } else if (i == 0) {
-                    if (nbLien(this.lien[i]) < 2) {
-                        this.lien[i][j] = rand.nextDouble() > 0.5;
+                    if (nbLien(this.lien[i]) < 3) {
+                        this.lien[i][j] = rand.nextDouble() > 0.4;
                         this.lien[j][i] = this.lien[i][j];
                     }
                 } else {
@@ -128,7 +150,7 @@ public class Instance {
 	
 	private void clean() {
 		
-		for (int i = 0; i < this.numberOfNode; ++i) {
+		for (int i = 1; i < this.numberOfNode; ++i) {
 			if (nbLien(this.lien[i]) > 1) {
 				for (int j = 0; j < this.numberOfNode; ++j) {
 					if (this.lien[i][j] == true && nbLien(this.lien[j]) > 1) {
@@ -180,20 +202,22 @@ public class Instance {
 	 * 
 	 * @param nbrNode
 	 */
-	private Instance(int nbrNode) {
+	private Instance(int nbrNode, int time) {
 		this.numberOfNode = nbrNode;
 		this.initLien();
 		this.initFlux();
 		this.initDistance();
 		this.initAlpha();
 		this.initTime();
+		this.T = time;
+		this.printInfo();
 	}
 	public static Instance getInstance() {
 		return inst;
 	}
 	
-	public static Instance getNewInstance(int nbrNode) {
-		inst = new Instance(nbrNode);
+	public static Instance getNewInstance(int nbrNode, int time) {
+		inst = new Instance(nbrNode, time);
 		return inst;
 	}
 }

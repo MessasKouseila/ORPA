@@ -12,7 +12,6 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 
 import instance.Instance;
-import sun.security.jca.GetInstance;
 /**
  * 
  * @author kouceila
@@ -25,7 +24,6 @@ public class GraphPrinter {
 	public mxGraph graph;
 	public Node[] nodes;
 	private int hight;
-	private int width;
 	private Map<Integer, Position>positions;
 	
 	/**
@@ -40,7 +38,6 @@ public class GraphPrinter {
 		this.instance = instance;
 		this.nodes = new Node[instance.numberOfNode];
 		this.hight = frame.getHeight();
-		this.width = frame.getWidth();
 		this.positions = new HashMap<Integer, Position>();
 		this.initPos();
 	}
@@ -48,20 +45,24 @@ public class GraphPrinter {
 	 * création du graph
 	 * @param parent
 	 */
-	public void initNodes(Object parent) {
+	public void initNodes(mxGraph graph, Object parent) {
 		for (int i = 1; i < this.instance.numberOfNode; ++i) {
-			this.nodes[i].racine = this.graph.insertVertex(parent, null, this.nodes[i].num, this.nodes[i].pos_X, this.nodes[i].pos_Y, 40, 40, mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE);
+			this.nodes[i].racine = graph.insertVertex(parent, null, this.nodes[i].num, this.nodes[i].pos_X, this.nodes[i].pos_Y, 40, 40, mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE);
 		}
+	}
+	public void color(Object parent, int node) {
+		String styleBase = mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE +";"+ mxConstants.STYLE_STROKECOLOR + "=black;"+ mxConstants.STYLE_FILLCOLOR + "=red";
+			this.nodes[node].racine = this.graph.insertVertex(parent, null, this.nodes[node].num, this.nodes[node].pos_X, this.nodes[node].pos_Y, 40, 40, styleBase);
 	}
 	/**
 	 * génération des connexion entre nodes
 	 */
-	public void initRelation(Object parent) {
+	public void initRelation(mxGraph graph, Object parent) {
 		
 		for (int i = 0; i < this.instance.lien.length; ++i) {
 			for (int j = 0; j < this.instance.lien.length; ++j) {
 				if (this.instance.lien[i][j]) {
-					this.graph.insertEdge(parent, null, "", nodes[i].racine, nodes[j].racine);
+					graph.insertEdge(parent, null, "", nodes[i].racine, nodes[j].racine);
 				}
 			}
 		}
@@ -79,10 +80,10 @@ public class GraphPrinter {
 			this.positions.put(i, new Position(this.positions.get(i - 2).x + Instance.Rand(35, 50), this.positions.get(i - 2).y - Instance.Rand(60, 90)));
 		}	
 		
-		double lastX = ( this.positions.get(this.instance.lien.length - 2).x 
+		/*double lastX = ( this.positions.get(this.instance.lien.length - 2).x 
 				+ this.positions.get(this.instance.lien.length - 3).x ) /2;
 		double lastY = ( this.positions.get(this.instance.lien.length - 2).y 
-				+ this.positions.get(this.instance.lien.length - 3).y ) /2;
+				+ this.positions.get(this.instance.lien.length - 3).y ) /2;*/
 		
 		//this.positions.put(this.instance.lien.length - 1, new Position(lastX + 30, lastY));
 		
@@ -100,25 +101,29 @@ public class GraphPrinter {
 		
 		Object parent = this.graph.getDefaultParent();
 		this.graph.getModel().beginUpdate();
-		this.initNodes(parent);
+		this.initNodes(this.graph, parent);
 		this.nodes[0].racine = null;
-		this.nodes[0].racine = this.graph.insertVertex(parent, null, "0", this.nodes[0].pos_X,this.nodes[0].pos_Y, 40, 40, mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE);
-
-		this.initRelation(parent);
+		String styleBase = mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE +";"+ mxConstants.STYLE_STROKECOLOR + "=black;"+ mxConstants.STYLE_FILLCOLOR + "=green";
+		
+		this.nodes[0].racine = this.graph.insertVertex(parent, null, "0", this.nodes[0].pos_X,this.nodes[0].pos_Y, 40, 40, styleBase);
+		this.initRelation(this.graph, parent);
 		this.graph.getModel().endUpdate();
 		return new mxGraphComponent(this.graph);	
 	}
 	
-	public mxGraphComponent graphSol() {
+	public mxGraphComponent graphSol(int node) {
 		
-		Object parent = this.graph.getDefaultParent();
-		this.graph.getModel().beginUpdate();
-		this.initNodes(parent);
+		mxGraph tmp_graph = new mxGraph();
+		Object parent = tmp_graph.getDefaultParent();
+		tmp_graph.getModel().beginUpdate();
+		this.initNodes(tmp_graph, parent);
 		this.nodes[0].racine = null;
-		this.nodes[0].racine = this.graph.insertVertex(parent, null, "0", this.nodes[0].pos_X,this.nodes[0].pos_Y, 40, 40, mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE);
-		this.initRelation(parent);
-		this.graph.getModel().endUpdate();
-		return new mxGraphComponent(this.graph);
+		String styleBase = mxConstants.STYLE_SHAPE + "="+mxConstants.SHAPE_ELLIPSE +";"+ mxConstants.STYLE_STROKECOLOR + "=black;"+ mxConstants.STYLE_FILLCOLOR + "=green";
+		this.nodes[0].racine = tmp_graph.insertVertex(parent, null, "0", this.nodes[0].pos_X,this.nodes[0].pos_Y, 40, 40, styleBase);
+		this.color(parent, node);
+		this.initRelation(tmp_graph, parent);
+		tmp_graph.getModel().endUpdate();
+		return new mxGraphComponent(tmp_graph);
 	}
 	
 	public static void main(String[] args) {
@@ -144,7 +149,7 @@ public class GraphPrinter {
 		f2.setVisible(true);
 		f3.setVisible(true);
 		
-		Instance i = Instance.getNewInstance(15);
+		Instance i = Instance.getNewInstance(15, 10);
 		GraphPrinter g1 = new GraphPrinter(f3, i);
 		f3.getContentPane().add(g1.graphIt());
 		f3.repaint();
