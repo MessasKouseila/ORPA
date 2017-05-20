@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -25,10 +26,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
-import Statistics.Statistique;
+import Informations.Informations;
 import gurobi.GRBException;
 import instance.Instance;
 import solver.Vrp_solver;
@@ -36,7 +38,7 @@ import solver.Vrp_solver;
 public class MainWindow {
 	
 	private Vrp_solver instanceOfSolver;
-	private Statistique instanceOfStat;
+	private Informations instanceOfStat;
 	private GraphPrinter instanceOfPrint;
 	private Instance tmpInst;
 	private int clicked = 0;
@@ -45,7 +47,7 @@ public class MainWindow {
 	private JFrame frame;
 	private JDesktopPane container;
 	private JInternalFrame instance;
-	private JInternalFrame stat;
+	private JInternalFrame information;
 	private JInternalFrame solution;
 	private JPanel SolutionPage;
 	
@@ -68,7 +70,7 @@ public class MainWindow {
 					window.frame.setVisible(true);
 					window.container.setVisible(true);
 					window.instance.setVisible(true);
-					window.stat.setVisible(true);
+					window.information.setVisible(true);
 					window.solution.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -113,8 +115,8 @@ public class MainWindow {
 				// TODO Auto-generated method stub
 				container.setBounds(0, 0, frame.getWidth(), frame.getHeight());
 				instance.setBounds(0, 0, (int)(frame.getWidth()*0.60), (int)(frame.getHeight() - 50));
-				stat.setBounds(instance.getX() + instance.getWidth() , instance.getY(),(int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.48));
-				solution.setBounds(instance.getX() + instance.getWidth(), stat.getY() + stat.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
+				information.setBounds(instance.getX() + instance.getWidth() , instance.getY(),(int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.48));
+				solution.setBounds(instance.getX() + instance.getWidth(), information.getY() + information.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
 			}
 		});
 		
@@ -130,31 +132,51 @@ public class MainWindow {
 			public void componentResized(ComponentEvent e) {
 				instance.moveToFront();
 				solution.moveToBack();
-				stat.moveToBack();
+				information.moveToBack();
 			}
 		});
 		
 		
 		// fenetre permettant d'afficher des informations concernant l'instance
-		stat = new JInternalFrame("Statistics", true, true, true);
-		stat.setBounds(instance.getX() + instance.getWidth() , instance.getY(),(int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.48));
-		stat.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		//stat.getContentPane().setLayout(null);
-		stat.getContentPane().setBackground(Color.LIGHT_GRAY);
-		container.add(stat);
-		stat.addComponentListener(new ComponentAdapter() {
+		information = new JInternalFrame("Informations", true, true, true);
+		information.setBounds(instance.getX() + instance.getWidth() , instance.getY(),(int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.48));
+		information.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//information.getContentPane().setLayout(null);
+		information.getContentPane().setBackground(Color.LIGHT_GRAY);
+		
+
+		
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		JComponent time = new JComponent() {
+		};
+		JComponent distance = new JComponent() {
+		};
+		JComponent solutions = new JComponent() {
+		};
+		
+		tabbedPane.addTab("time", null, time,
+		                  "Does nothing");
+		tabbedPane.addTab("distance", null, distance,
+                "Does nothing");
+		tabbedPane.addTab("solutions", null, solutions,
+                "Does nothing");
+		
+		tabbedPane.setBounds(0, 0, information.getWidth(), information.getHeight());
+		information.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		container.add(information);
+		information.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				instance.moveToBack();
 				solution.moveToBack();
-				stat.moveToFront();
+				information.moveToFront();
 			}
 		});
 		
 		
 		// fenetre permettant d'afficher la solution sous forme graphique
 		solution = new JInternalFrame("Solution", true, true, true);
-		solution.setBounds(instance.getX() + instance.getWidth(), stat.getY() + stat.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
+		solution.setBounds(instance.getX() + instance.getWidth(), information.getY() + information.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
 		solution.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		solution.getContentPane().setLayout(null);
 		solution.getContentPane().setBackground(Color.LIGHT_GRAY);
@@ -212,7 +234,7 @@ public class MainWindow {
 			public void componentResized(ComponentEvent e) {
 				instance.moveToBack();
 				solution.moveToFront();
-				stat.moveToBack();
+				information.moveToBack();
 				SolutionPage.setBounds(3, 25, (int)(solution.getWidth() - 18), (int)(solution.getHeight() - 60));
 			}
 		});
@@ -325,6 +347,15 @@ public class MainWindow {
 		
 		JMenuItem LaunchSol = new JMenuItem("Launch resolution");
 		menu_Solution.add(LaunchSol);
+		
+		JMenuItem compar = new JMenuItem("Compar solution");
+		compar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				System.out.println("lancement de la comparaison");
+			}
+		});
+		menu_Solution.add(compar);
 		LaunchSol.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
