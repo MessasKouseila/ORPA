@@ -2,6 +2,8 @@ package instance;
 
 import java.util.Random;
 
+import javax.swing.JTextArea;
+
 public class Instance {
 	private static Instance inst = null;
 	public static Random rand = new Random();
@@ -71,6 +73,55 @@ public class Instance {
 			}
 		}
 	}
+	public String printTime() {
+		String res = "";
+		for (int i = 0; i < this.numberOfNode - 1; ++i) {
+			for (int j = i + 1; j < this.numberOfNode; ++j) {
+				if(this.t[i][j] != 0) 
+					res = res + "station "+ i +" à "+ j + " ==> "+this.t[i][j] + "\n";
+			}
+		}
+		return res;
+	}
+	
+	public String printDistance() {
+		String res = "";
+		for (int i = 0; i < this.numberOfNode - 1; ++i) {
+			for (int j = i + 1; j < this.numberOfNode; ++j) {
+				if(this.d[i][j] != 0) 
+					res = res + "station "+ i +" vers "+ j + " ==> "+this.d[i][j] + "\n";
+			}
+		}
+		return res;
+	}
+	public String printInformations() {
+		String res = "";
+		for (int i = 0; i < this.numberOfNode; ++i) {
+			res = res + "station "+ i +" génére ==> "+this.r[i] + "\n";
+		}
+		return res;
+	}
+
+	public void printToScreen(JTextArea time, JTextArea distance, JTextArea info) {
+		
+		time.removeAll();
+		time.setText(this.printTime());
+		time.revalidate();
+		time.repaint();
+		
+		distance.removeAll();
+		distance.setText(this.printDistance());
+		distance.revalidate();
+		distance.repaint();
+		
+		info.removeAll();
+		info.setText(this.printInformations());
+		info.revalidate();
+		info.repaint();
+		
+	}
+	
+	
 	public void printInfo() {
 		System.out.println("<======== DISTANCE =============>");
 		for (int i = 0; i < this.numberOfNode - 1; ++i) {
@@ -210,7 +261,6 @@ public class Instance {
 		this.initAlpha();
 		this.initTime();
 		this.T = time;
-		this.printInfo();
 	}
 	public static Instance getInstance() {
 		return inst;

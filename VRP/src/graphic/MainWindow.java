@@ -16,7 +16,6 @@ import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -26,34 +25,48 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import Informations.Informations;
 import gurobi.GRBException;
 import instance.Instance;
-import solver.Vrp_solver;
+import solver.Heuristique;
+import solver.VRP;
 
 public class MainWindow {
 	
-	private Vrp_solver instanceOfSolver;
+	private VRP instanceOfSolver;
 	private Informations instanceOfStat;
 	private GraphPrinter instanceOfPrint;
 	private Instance tmpInst;
+	
 	private int clicked = 0;
 	private int[] instant;
 	private Map<Integer, Integer> solTime; 
+	
 	private JFrame frame;
 	private JDesktopPane container;
+	
 	private JInternalFrame instance;
 	private JInternalFrame information;
 	private JInternalFrame solution;
+	
 	private JPanel SolutionPage;
+	
+	private JTabbedPane tabbedPane;
+	private JTextArea time;
+	private JTextArea distance;
+	private JTextArea solutions;
+	private JTextArea info;
 	
 	JCheckBoxMenuItem checkBoxMenuItem;
 	JCheckBoxMenuItem checkBoxMenuItem_1;
 	JCheckBoxMenuItem checkBoxMenuItem_2;
+	
 	int width = 768;
 	int height = 1024;
 
@@ -122,7 +135,7 @@ public class MainWindow {
 		
 		
 		// affichage du graphe representant l'instance generer
-		instance = new JInternalFrame("INSTANCE", true, true, true);
+		instance = new JInternalFrame("INSTANCE", true, true, true, true);
 		instance.setBounds(0, 0, (int)(frame.getWidth()*0.60), (int)(frame.getHeight() - 50));
 		instance.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		instance.getContentPane().setBackground(Color.LIGHT_GRAY);
@@ -138,7 +151,7 @@ public class MainWindow {
 		
 		
 		// fenetre permettant d'afficher des informations concernant l'instance
-		information = new JInternalFrame("Informations", true, true, true);
+		information = new JInternalFrame("Informations", true, true, true, true);
 		information.setBounds(instance.getX() + instance.getWidth() , instance.getY(),(int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.48));
 		information.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//information.getContentPane().setLayout(null);
@@ -146,23 +159,36 @@ public class MainWindow {
 		
 
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		JComponent time = new JComponent() {
-		};
-		JComponent distance = new JComponent() {
-		};
-		JComponent solutions = new JComponent() {
-		};
-		
-		tabbedPane.addTab("time", null, time,
-		                  "Does nothing");
-		tabbedPane.addTab("distance", null, distance,
-                "Does nothing");
-		tabbedPane.addTab("solutions", null, solutions,
-                "Does nothing");
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		
 		tabbedPane.setBounds(0, 0, information.getWidth(), information.getHeight());
 		information.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+		
+		
+		
+		time = new JTextArea();
+		time.setEditable(false);
+		distance = new JTextArea();
+		distance.setEditable(false);
+		info = new JTextArea();
+		info.setEditable(false);
+		solutions = new JTextArea();
+		solutions.setEditable(false);
+		
+		JScrollPane panelTime = new JScrollPane(time, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		tabbedPane.addTab("Time", null, panelTime, null);
+		
+		JScrollPane panelDistance = new JScrollPane(distance, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		tabbedPane.addTab("Distance", null, panelDistance, null);
+		
+		JScrollPane panelInfo = new JScrollPane(info, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		tabbedPane.addTab("Informations", null, panelInfo, null);
+		
+		
+		JScrollPane panelSolution = new JScrollPane(solutions, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		tabbedPane.addTab("Solution", null, panelSolution, null);
+		
+		
 		container.add(information);
 		information.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -175,7 +201,7 @@ public class MainWindow {
 		
 		
 		// fenetre permettant d'afficher la solution sous forme graphique
-		solution = new JInternalFrame("Solution", true, true, true);
+		solution = new JInternalFrame("Solution", true, true, true, true);
 		solution.setBounds(instance.getX() + instance.getWidth(), information.getY() + information.getHeight(), (int)(frame.getWidth()*0.40), (int)(frame.getHeight() * 0.448));
 		solution.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		solution.getContentPane().setLayout(null);
@@ -275,9 +301,12 @@ public class MainWindow {
 				System.out.println("Generation en cours avec "+nbr+" stations");*/
 			    
 				tmpInst = Instance.getNewInstance(nbr, timeS);
+				tmpInst.printToScreen(time, distance, info);
+				
 				SolutionPage.removeAll();
 				SolutionPage.revalidate();
 				SolutionPage.repaint();
+				
 				clicked = 0;
 				instantT.setText("instant t = " + clicked);
 				instanceOfPrint = new GraphPrinter(instance, tmpInst);
@@ -352,7 +381,48 @@ public class MainWindow {
 		compar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
+				
 				System.out.println("lancement de la comparaison");
+				CompareDisplay compare = new CompareDisplay();
+				try {
+					instanceOfSolver = new VRP(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
+				} catch (GRBException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				Thread solveIt = new Thread(instanceOfSolver);
+				double t = System.currentTimeMillis();
+				solveIt.start();
+				//System.out.println("temps d'execution : " + (System.currentTimeMillis() - t) );
+				try {
+					solveIt.join();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				double t_final = System.currentTimeMillis() - t;
+				instanceOfSolver.printToscreenRes(compare.solution1, t_final);
+				
+				try {
+					Heuristique h = new Heuristique();
+					double t2 = System.currentTimeMillis();
+					VRP v = h.resolve(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
+					double t_final2 = System.currentTimeMillis() - t2;
+					solTime = v.result();
+					instant = new int [solTime.size() + 1];
+					int klm = 0;
+					solTime.put(0, 0);
+					for(Entry<Integer, Integer> entry : solTime.entrySet()) {
+					    System.out.println(entry.getKey() + " ==> " + entry.getValue());
+					    instant[klm] = entry.getKey();
+					    klm++;
+					}
+					v.printToscreenRes(compare.solution2, t_final2);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				compare.setVisible(true);
 			}
 		});
 		menu_Solution.add(compar);
@@ -361,13 +431,15 @@ public class MainWindow {
 			public void mousePressed(MouseEvent e) {
 				if (instanceOfPrint != null && instanceOfPrint.instance != null)
 				if (checkBoxMenuItem.isSelected()) {
+					// utilisation du modele
 					try {
-						instanceOfSolver = new Vrp_solver(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
+						instanceOfSolver = new VRP(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
 						Thread solveIt = new Thread(instanceOfSolver);
-						//instanceOfSolver.resolve();
+						double t = System.currentTimeMillis();
 						solveIt.start();
 						//System.out.println("temps d'execution : " + (System.currentTimeMillis() - t) );
 						solveIt.join();
+						double t_final = System.currentTimeMillis() - t;
 						solTime = instanceOfSolver.result();
 						instant = new int [solTime.size() + 1];
 						int klm = 0;
@@ -383,6 +455,7 @@ public class MainWindow {
 						SolutionPage.add(instanceOfPrint.graphSol(0), BorderLayout.CENTER);
 						SolutionPage.revalidate();
 						SolutionPage.repaint();
+						instanceOfSolver.printToscreenRes(solutions, t_final);
 						
 					} catch (GRBException | InterruptedException e1) {
 						// TODO Auto-generated catch block
@@ -390,14 +463,35 @@ public class MainWindow {
 					}
 				}
 				if (checkBoxMenuItem_1.isSelected()) {
+					// utilisation de l'heuristique 1
 					try {
-						System.out.println("methode heuristique 1");
+						Heuristique h = new Heuristique();
+						double t = System.currentTimeMillis();
+						VRP v = h.resolve(tmpInst.numberOfNode, tmpInst.t, tmpInst.T, tmpInst.M, tmpInst.R, tmpInst.r, tmpInst.d, tmpInst.alpha);
+						double t_final = System.currentTimeMillis() - t;
+						solTime = v.result();
+						instant = new int [solTime.size() + 1];
+						int klm = 0;
+						solTime.put(0, 0);
+						for(Entry<Integer, Integer> entry : solTime.entrySet()) {
+						    System.out.println(entry.getKey() + " ==> " + entry.getValue());
+						    instant[klm] = entry.getKey();
+						    klm++;
+						}
+						//tmpInst = Instance.getInstance();
+						//instanceOfPrint = new GraphPrinter(instance, tmpInst);
+						SolutionPage.removeAll();
+						SolutionPage.add(instanceOfPrint.graphSol(0), BorderLayout.CENTER);
+						SolutionPage.revalidate();
+						SolutionPage.repaint();
+						v.printToscreenRes(solutions, t_final);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
 				if (checkBoxMenuItem_2.isSelected()) {
+					// utilisation de l'heuristique 2
 					try {
 						System.out.println("methode heuristique 2");
 					} catch (Exception e1) {

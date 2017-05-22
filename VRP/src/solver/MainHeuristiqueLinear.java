@@ -1,9 +1,9 @@
 package solver;
-
 import gurobi.GRBException;
 
-public class Main_solver {
-	public static void main(String[] args) {
+public class MainHeuristiqueLinear {
+
+public static void main(String[] args) {
 		
 		double r[] = {0.4,0.3,0.2,0.7,0.5,0.3};
 		
@@ -33,14 +33,17 @@ public class Main_solver {
 				 			{1,1,1,1,1,0}
 			
 	};
-		int M = 2;
+		int M = 10;
 		int R = 30;
-		int T = 13;
+		int T = 80;
 		try {
-			Vrp_solver v = new Vrp_solver(6,t,T,M,R,r,d,alpha);
-			v.resolve();
+			HeuristiqueLinearRelaxation h = new HeuristiqueLinearRelaxation(6,t,T,M,R,r,d,alpha);
+			VRP v = h.resolve();
+			
 			v.prindTrajet();
 			v.printInformation();
+			v.printSendMessage();
+			System.out.println(v.objectif);
 		} catch (GRBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
